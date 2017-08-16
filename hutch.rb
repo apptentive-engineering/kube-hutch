@@ -2,6 +2,7 @@
 
 require 'active_support'
 require 'active_support/core_ext/hash'
+require 'fileutils'
 require 'kubeclient'
 require 'yaml'
 
@@ -52,6 +53,17 @@ def filter(resource, blacklist)
   resource
 end
 
+def store(resource, target_dir = 'backup')
+  path = ::File.join(target_dir, resource['kind'])
+  FileUtils::mkdir_p path
+
+  # Eliminate '---' header, which isn't commonly used for k8 resource yamls
+  yaml = resource.to_yaml.split("\n")[1..-1].join("\n")
+  file_path = ::File.join(path, "#{resource['metadata']['name']}.yml")
+  File.open(file_path, 'w') { |f| f.write(yaml) }
+
+  [resource['kind'], resource['metadata']['name']]
+end
 
 if __FILE__ == $0
   k8 = kube_api
@@ -60,7 +72,8 @@ if __FILE__ == $0
   BLACKLIST = YAML.load_file(CONFIG_FILE)['blacklist']
 
   k8.get_replication_controllers.each do |rc|
-    puts
-    puts filter(hashify(rc), BLACKLIST).to_yaml
+    # puts
+    # puts filter(hashify(rc), BLACKLIST).to_yaml.split("\n")[1..-1].join("\n")
+    puts 'Backed up: ' + store(filter(hashify(rc), BLACKLIST)).join(' - ')
   end
 end
