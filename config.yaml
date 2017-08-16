@@ -1,0 +1,15 @@
+---
+blacklist:
+  - metadata:
+    - selfLink
+    - uid
+    - resourceVersion
+    - generation
+    - creationTimestamp
+    - annotations:
+      - kubectl.kubernetes.io/last-applied-configuration
+  - spec:
+    - template:
+      - metadata:
+        - creationTimestamp
+  - status
