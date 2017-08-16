@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
 
 require 'kubeclient'
+require 'yaml'
 
 
 def kube_api(kube_config = ::File.join(ENV['HOME'], '.kube', 'config'))
@@ -18,4 +19,8 @@ end
 
 
 k8 = kube_api
-p k8.get_pods
+
+k8.get_replication_controllers.each do |rc|
+  puts
+  puts rc.to_hash.to_yaml
+end
