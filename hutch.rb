@@ -19,12 +19,22 @@ def kube_api(kube_config = ::File.join(ENV['HOME'], '.kube', 'config'))
   )
 end
 
+def deeply_sort_hash(object)
+  return object unless object.is_a?(Hash)
+
+  hash = {}
+  object.each { |k, v| hash[k] = deeply_sort_hash(v) }
+  sorted = hash.sort { |a, b| a[0].to_s <=> b[0].to_s }
+
+  Hash[sorted]
+end
+
 def hashify(resource)
   hashed_resource = resource.to_hash
   hashed_resource[:apiVersion] = 'v1'
   hashed_resource[:kind] = resource.class.to_s.split('::').last
 
-  hashed_resource.deep_stringify_keys
+  deeply_sort_hash(hashed_resource.deep_stringify_keys)
 end
 
 def filter(resource, blacklist)
