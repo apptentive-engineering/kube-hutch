@@ -31,8 +31,8 @@ end
 
 def hashify(resource)
   hashed_resource = resource.to_hash
-  hashed_resource[:apiVersion] = 'v1'
-  hashed_resource[:kind] = resource.class.to_s.split('::').last
+  hashed_resource[:apiVersion] ||= 'v1'
+  hashed_resource[:kind] ||= resource.class.to_s.split('::').last
 
   deeply_sort_hash(hashed_resource.deep_stringify_keys)
 end
