@@ -19,15 +19,23 @@ def kube_api(kube_config = ::File.join(ENV['HOME'], '.kube', 'config'))
   )
 end
 
+def hashify(resource)
+  hashed_resource = resource.to_hash
+  hashed_resource[:apiVersion] = 'v1'
+  hashed_resource[:kind] = resource.class.to_s.split('::').last
+
+  hashed_resource.deep_stringify_keys
+end
+
 def filter(resource, blacklist)
   blacklist.each do |entry|
     case entry
     when Hash
       entry.each do |k, v|
-        resource[k.to_sym] = filter(resource[k.to_sym], entry[k]) if resource.has_key?(k.to_sym)
+        resource[k] = filter(resource[k], entry[k]) if resource.has_key?(k)
       end
     when String
-      resource.delete(entry.to_sym) if resource.has_key?(entry.to_sym)
+      resource.delete(entry) if resource.has_key?(entry)
     end
   end
 
@@ -43,6 +51,6 @@ if __FILE__ == $0
 
   k8.get_replication_controllers.each do |rc|
     puts
-    puts filter(rc.to_hash, BLACKLIST).deep_stringify_keys.to_yaml
+    puts filter(hashify(rc), BLACKLIST).to_yaml
   end
 end
