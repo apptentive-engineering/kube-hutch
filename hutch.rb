@@ -35,12 +35,14 @@ def filter(resource, blacklist)
 end
 
 
-k8 = kube_api
+if __FILE__ == $0
+  k8 = kube_api
 
-CONFIG_FILE = 'config.yaml'
-BLACKLIST = YAML.load_file(CONFIG_FILE)['blacklist']
+  CONFIG_FILE = 'config.yaml'
+  BLACKLIST = YAML.load_file(CONFIG_FILE)['blacklist']
 
-k8.get_replication_controllers.each do |rc|
-  puts
-  puts filter(rc.to_hash, BLACKLIST).deep_stringify_keys.to_yaml
+  k8.get_replication_controllers.each do |rc|
+    puts
+    puts filter(rc.to_hash, BLACKLIST).deep_stringify_keys.to_yaml
+  end
 end
