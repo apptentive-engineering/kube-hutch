@@ -1,5 +1,7 @@
 #!/usr/bin/env ruby
 
+require 'active_support'
+require 'active_support/core_ext/hash'
 require 'kubeclient'
 require 'yaml'
 
@@ -40,5 +42,5 @@ BLACKLIST = YAML.load_file(CONFIG_FILE)['blacklist']
 
 k8.get_replication_controllers.each do |rc|
   puts
-  puts filter(rc.to_hash, BLACKLIST).to_yaml
+  puts filter(rc.to_hash, BLACKLIST).deep_stringify_keys.to_yaml
 end
