@@ -66,7 +66,10 @@ def cleanup_resource(resource, blacklist=None):
       elif type(v) is list:
         export_value = []
         for i in v:
-          export_value.append(keys_to_camel(i))
+          if type(i) is dict:
+            export_value.append(keys_to_camel(i))
+          else:
+            export_value.append(i)
 
       camelized_key = sub(r'(?!^)_([a-zA-Z])', lambda x: x.group(1).upper(), k)
       camelized[camelized_key] = export_value
