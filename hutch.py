@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
 
-from kubernetes import client, config as kube_config
+from kubernetes import client as kube_client, config as kube_config
 from os import path, environ
 from pathlib import Path
 from re import sub
 from yaml import dump, load
-
 
 
 def resource_to_yaml(resource, target_path):
@@ -110,6 +109,30 @@ def cleanup_resource(resource, blacklist=None):
   return cleaned_resource
 
 
+def get_resource_set(client, resource_type, config):
+  """
+  Retrieves a set of Kubernetes resources of a specific type
+
+  :param client: kubernetes.client.apis.* - a client to the Kubernetes API
+  :param resource_type: str - the type of resource to retrieve
+  :param config: dict - runtime configuration settings
+  """
+
+  list_all = getattr(client, "list_{}_for_all_namespaces".format(resource_type))
+  read_single = getattr(client, "read_namespaced_{}".format(resource_type))
+
+  resources = []
+
+  for resource_set in list_all().items:
+    resource = read_single(resource_set.metadata.name, resource_set.metadata.namespace).to_dict()
+    if 'blacklist' in config:
+      resources.append(cleanup_resource(resource, config['blacklist']))
+    else:
+      resources.append(cleanup_resource(resource))
+
+  return resources
+
+
 
 if __name__ == '__main__':
   CONFIG_PATH = 'config.yaml'
@@ -117,14 +140,13 @@ if __name__ == '__main__':
     CONFIG = load(stream)
 
   kube_config.load_kube_config(path.join(environ['HOME'], '.kube/config'))
-  v1beta1 = client.ExtensionsV1beta1Api()
+  v1beta1 = kube_client.ExtensionsV1beta1Api()
+
+  resource_types = ['daemon_set']
+  resources = []
+  for rsc_type in resource_types:
+    resources += get_resource_set(v1beta1, rsc_type, CONFIG)
 
   print('Backing up DaemonSets:')
-  for ds in v1beta1.list_daemon_set_for_all_namespaces().items:
-    resource = v1beta1.read_namespaced_daemon_set(ds.metadata.name, ds.metadata.namespace).to_dict()
-    if 'blacklist' in CONFIG:
-      resource = cleanup_resource(resource, CONFIG['blacklist'])
-    else:
-      resource = cleanup_resource(resource)
-
+  for resource in resources:
     print("\t" + resource_to_yaml(resource, CONFIG['base_path']))
