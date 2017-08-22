@@ -5,7 +5,6 @@ api_resource_map:
   job: BatchV1Api
   replica_set: ExtensionsV1beta1Api
   replication_controller: CoreV1Api
-  secret: CoreV1Api
   service: CoreV1Api
 base_path: backup
 blacklist:
