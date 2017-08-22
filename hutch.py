@@ -4,7 +4,7 @@ from kubernetes import client as kube_client, config as kube_config
 from os import path, environ
 from pathlib import Path
 from re import sub
-from yaml import dump, load
+from ruamel import yaml
 
 
 def resource_to_yaml(resource, target_path):
@@ -20,7 +20,7 @@ def resource_to_yaml(resource, target_path):
 
   file_path = path.join(resource_path, "{}.yml".format(resource['metadata']['name']))
   with open(file_path, 'w') as file:
-    dump(resource, file, default_flow_style=False)
+    yaml.dump(resource, file, default_flow_style=False)
 
   return file_path
 
@@ -75,6 +75,7 @@ def cleanup_resource(resource, blacklist=None):
       camelized[camelized_key] = export_value
 
     return camelized
+
 
 
   def filter(rsc, bl):
@@ -142,7 +143,7 @@ def get_resource_set(resource_type, config):
 if __name__ == '__main__':
   CONFIG_PATH = 'config.yaml'
   with open(CONFIG_PATH, 'r') as stream:
-    CONFIG = load(stream)
+    CONFIG = yaml.load(stream, Loader=yaml.Loader)
 
   kube_config.load_kube_config(path.join(environ['HOME'], '.kube/config'))
 
