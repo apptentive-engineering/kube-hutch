@@ -146,9 +146,8 @@ if __name__ == '__main__':
 
   kube_config.load_kube_config(path.join(environ['HOME'], '.kube/config'))
 
-  resource_types = ['daemon_set', 'deployment', 'job']
   resources = []
-  for rsc_type in resource_types:
+  for rsc_type in CONFIG['api_resource_map'].keys():
     print("Retrieving {}s...".format(rsc_type))
     resources += get_resource_set(rsc_type, CONFIG)
 
