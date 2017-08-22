@@ -3,6 +3,10 @@ api_resource_map:
   daemon_set: ExtensionsV1beta1Api
   deployment: ExtensionsV1beta1Api
   job: BatchV1Api
+  replica_set: ExtensionsV1beta1Api
+  replication_controller: CoreV1Api
+  secret: CoreV1Api
+  service: CoreV1Api
 base_path: backup
 blacklist:
   - metadata:
