@@ -145,8 +145,9 @@ if __name__ == '__main__':
   resource_types = ['daemon_set']
   resources = []
   for rsc_type in resource_types:
+    print("Retrieving {}s...".format(rsc_type))
     resources += get_resource_set(v1beta1, rsc_type, CONFIG)
 
-  print('Backing up DaemonSets:')
+  print("\nBacked up:")
   for resource in resources:
     print("\t" + resource_to_yaml(resource, CONFIG['base_path']))
