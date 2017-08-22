@@ -1,4 +1,8 @@
 ---
+api_resource_map:
+  daemon_set: ExtensionsV1beta1Api
+  deployment: ExtensionsV1beta1Api
+  job: BatchV1Api
 base_path: backup
 blacklist:
   - metadata:

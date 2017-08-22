@@ -112,14 +112,16 @@ def cleanup_resource(resource, blacklist=None):
   return cleaned_resource
 
 
-def get_resource_set(client, resource_type, config):
+def get_resource_set(resource_type, config):
   """
   Retrieves a set of Kubernetes resources of a specific type
 
-  :param client: kubernetes.client.apis.* - a client to the Kubernetes API
   :param resource_type: str - the type of resource to retrieve
   :param config: dict - runtime configuration settings
   """
+  api_version = config['api_resource_map'][resource_type]
+  connect = getattr(kube_client, api_version)
+  client = connect()
 
   list_all = getattr(client, "list_{}_for_all_namespaces".format(resource_type))
   read_single = getattr(client, "read_namespaced_{}".format(resource_type))
@@ -143,13 +145,12 @@ if __name__ == '__main__':
     CONFIG = load(stream)
 
   kube_config.load_kube_config(path.join(environ['HOME'], '.kube/config'))
-  v1beta1 = kube_client.ExtensionsV1beta1Api()
 
-  resource_types = ['daemon_set']
+  resource_types = ['daemon_set', 'deployment', 'job']
   resources = []
   for rsc_type in resource_types:
     print("Retrieving {}s...".format(rsc_type))
-    resources += get_resource_set(v1beta1, rsc_type, CONFIG)
+    resources += get_resource_set(rsc_type, CONFIG)
 
   print("\nBacked up:")
   for resource in resources:
