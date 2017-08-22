@@ -16,11 +16,13 @@ blacklist:
     - generation
     - creationTimestamp
     - annotations:
+      - deployment.kubernetes.io/revision
       - kubectl.kubernetes.io/last-applied-configuration
       - kubectl.kubernetes.io/next-controller-id
       - kubectl.kubernetes.io/original-replicas
       - kubectl.kubernetes.io/desired-replicas
       - kubectl.kubernetes.io/update-source-id
+      - kubernetes.io/change-cause
   - spec:
     - template:
       - metadata:
