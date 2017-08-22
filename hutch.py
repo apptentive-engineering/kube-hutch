@@ -145,7 +145,10 @@ if __name__ == '__main__':
   with open(CONFIG_PATH, 'r') as stream:
     CONFIG = yaml.load(stream, Loader=yaml.Loader)
 
-  kube_config.load_kube_config(path.join(environ['HOME'], '.kube/config'))
+  if 'kube_config' in CONFIG:
+    kube_config.load_kube_config(CONFIG['kube_config'])
+  else:
+    kube_config.load_kube_config(path.join(environ['HOME'], '.kube/config'))
 
   resources = []
   for rsc_type in CONFIG['api_resource_map'].keys():
