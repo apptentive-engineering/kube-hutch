@@ -149,7 +149,7 @@ if __name__ == '__main__':
 
   resources = []
   for rsc_type in CONFIG['api_resource_map'].keys():
-    print("Retrieving {}s...".format(rsc_type))
+    print("Retrieving {}s...".format(rsc_type.replace('_', ' ')))
     resources += get_resource_set(rsc_type, CONFIG)
 
   print("\nBacked up:")
