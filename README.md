@@ -10,10 +10,11 @@ All configuration is expected to be found in the `config.yaml` file.
 
 ### Options
 
-|   Key   | Type |                             Description                             |
-|---------|------|---------------------------------------------------------------------|
-|base_path|String|Path where exported YAML files should be stored                      |
-|blacklist| Hash |Nested hash of lists, denoting attributes that should not be exported|
+|       Key      | Type |                             Description                              |
+|----------------|------|----------------------------------------------------------------------|
+|api_resource_map| Hash |`resource-type`:`client-api-version` _key:value_ pairs                      |
+|   base_path    |String|Path where exported YAML files should be stored                       |
+|   blacklist    | List |Nested list of hashes, denoting attributes that should not be exported|
 
 ## Usage
 
