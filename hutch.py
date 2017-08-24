@@ -3,8 +3,9 @@
 from kubernetes import client as kube_client, config as kube_config
 from os import path, environ
 from pathlib import Path
-from re import sub
 from ruamel import yaml
+import re
+
 
 
 def resource_to_yaml(resource, target_path):
@@ -71,7 +72,7 @@ def cleanup_resource(resource, blacklist=None):
           else:
             export_value.append(i)
 
-      camelized_key = sub(r'(?!^)_([a-zA-Z])', lambda x: x.group(1).upper(), k)
+      camelized_key = re.sub(r'(?!^)_([a-zA-Z])', lambda x: x.group(1).upper(), k)
       camelized[camelized_key] = export_value
 
     return camelized
@@ -139,6 +140,20 @@ def get_resource_set(resource_type, config):
   return resources
 
 
+def skip_deployment_replica_sets(resources):
+  """
+  Filters out deployment-backed replica sets from a list of resources
+
+  :param resources: list - resources to parse
+  :return: list - resources list with deployment-created replica sets removed
+  """
+  regex = re.compile('(.+)-[0-9]+')
+  client = kube_client.ExtensionsV1beta1Api()
+  deployments = [resource.metadata.name for resource in client.list_deployment_for_all_namespaces().items]
+
+  return [resource for resource in resources if resource['kind'] != 'ReplicaSet' or regex.match(resource['metadata']['name']).group(1) not in deployments]
+
+
 
 if __name__ == '__main__':
   CONFIG_PATH = 'config.yaml'
@@ -154,6 +169,9 @@ if __name__ == '__main__':
   for rsc_type in CONFIG['api_resource_map'].keys():
     print("Retrieving {}s...".format(rsc_type.replace('_', ' ')))
     resources += get_resource_set(rsc_type, CONFIG)
+
+  if CONFIG['skip_deployment_replica_sets']:
+    resources = skip_deployment_replica_sets(resources)
 
   print("\nBacked up:")
   for resource in resources:
