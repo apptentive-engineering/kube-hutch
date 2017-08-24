@@ -151,7 +151,16 @@ def skip_deployment_replica_sets(resources):
   client = kube_client.ExtensionsV1beta1Api()
   deployments = [resource.metadata.name for resource in client.list_deployment_for_all_namespaces().items]
 
-  return [resource for resource in resources if resource['kind'] != 'ReplicaSet' or regex.match(resource['metadata']['name']).group(1) not in deployments]
+  filtered = []
+  for resource in resources:
+    if resource['kind'] == 'ReplicaSet':
+      match = regex.match(resource['metadata']['name'])
+      if match is None or match.group(1) not in deployments:
+        filtered.append(resource)
+    else:
+      filtered.append(resource)
+
+  return filtered
 
 
 
