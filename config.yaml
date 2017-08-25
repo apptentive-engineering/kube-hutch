@@ -27,3 +27,4 @@ blacklist:
       - metadata:
         - creationTimestamp
   - status
+skip_deployment_replica_sets: true
