@@ -1,2 +1,2 @@
 kubernetes==3.0.0
-ruamel.yaml=0.15.32
+ruamel.yaml==0.15.32
